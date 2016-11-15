@@ -59,6 +59,30 @@ This package requries the following programs (tested version)
 * samtools (1.3.1)
 * bowtie (1.1.2)
 * RSEM (rsem-1.3.0)
-If these programs are not installed, you can install with LPM.
+* R (3.1)
 
+If these programs are not installed, you can install with LPM (a local package manager written by Masahiro Kasahara 
+at the University of Tokyo; the original site is currently down).
+If you have not installed LPM you can do so with:
+    wget https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/lpm
+    chmod +x lpm
+    lpm initlocaldir
+
+logout and login
+
+Provided that you have LPM installed, required softwares could be installed as follows:
+    lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/ruby.lpm
+    lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/samtools.lpm
+    lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/bowtie.lpm
+    lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/rsem.lpm
+
+To compile R you may need a number of prerequisites on CentOS/RHEL 6
+    lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/libbz2.lpm
+    lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/xz.lpm
+    lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/zlib.lpm
+    lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/pcre.lpm
+    lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/curl.lpm
+    lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/R.lpm
+
+Note https is recommended, but http is also provided.
 
