@@ -40,10 +40,10 @@ The script generation and submission can be done in one command
               -s index.list \
               -t $HOME/Ppatens/v3.3/Ppatrans2genemap \
               -R $HOME/Ppatens/v3.3/PpatensV3.3 \
-              -g grid.cnf \
+              -g grid.cfg \
               --submit -v
 
-# Input data
+## Input data
 As input data, this program requires sequence and sample information files. 
 * read data fastq files
 ** read data file containing cDNA sequences 
@@ -52,6 +52,24 @@ As input data, this program requires sequence and sample information files.
 
 * For reference, a reference created with rsem-prepare-reference and the transcript-to-gene-map
 should be specified.
+
+## grid configuration file
+grid.cfg specifies the resource request for the grid engine.
+an example is shown below
+
+    split_fq: -pe def_slot 2
+    map: -pe def_slot 1-20
+    sort: -pe def_slot 1-20
+    unify: -pe def_slot 2
+    rsem: -pe def_slot 1-20
+    combine: -pe def_slot 1-2
+
+In this example, parallel environment are specified to request variable amount of slots for 
+map, sort, and rsem stages. At these steps the program can be run in multi-threaded way and
+allocating many CPU for these stage will make the process to finish earlier. Other steps are not
+multi-threaded at program level, but multiple CPU may be used as pipe command or parallel processes.
+The resource specification differ among grid engin installation and the site specific documents
+should be referred.
 
 
 # Installation
