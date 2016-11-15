@@ -12,7 +12,7 @@ For each UMI, the alignment are checked per gene-wise, and a single read is chos
 
 # Usage
 
-   ruby makemakefile.rb -i al_S2_L8_In_crp18_Rd-PE.fq.gz \
+    ruby makemakefile.rb -i al_S2_L8_In_crp18_Rd-PE.fq.gz \
               -r al_S2_L8_Rd_trm75chc.fq.gz \
               -s index.list \
               -t /home/tomoaki/Ppatens/v3.3/Ppatrans2genemap \
