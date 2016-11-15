@@ -190,3 +190,23 @@ open("jobs/combine","w") do |jf|
   jf.puts "N=$NSLOTS"
   jf.puts "NSLOTS=1 make -j $N all"
 end
+
+sample_file = options[:sample_file]
+
+sample_name_a = indices.map{|a| a[1]}
+
+open("makeMatrix_genes.R", "w") do |rf|
+  sample_name_a.each do |s|
+    rf.puts "dfg_#{s} <- read.table(\"#{s}/#{s}.genes.results\", head=T)"
+  end
+  rf.puts "g_matrix = data.frame(id = dfg_#{samples[0]}$gene_id, #{sample_name_a.map{|s| "g_#{s} = dfg_#{s}$expected_count"}.join(", ")} )"
+  rf.puts 'write.table(g_matrix, "genes.counts.matrix")'
+end
+
+open("makeMatrix_isoforms.R", "w") do |rf|
+  sample_name_a.each do |s|
+    rf.puts "dfi_#{s} <- read.table(\"#{s}/#{s}.isoforms.results\", head=T)"
+  end
+  rf.puts "i_matrix = data.frame(id = dfi_#{samples[0]}$transcript_id, #{sample_name_a.map{|s| "i_#{s} = dfi_#{s}$expected_count"}.join(", ")} )"
+  rf.puts 'write.table(i_matrix, "isoforms.counts.matrix")'
+end
