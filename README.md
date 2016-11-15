@@ -11,12 +11,34 @@ For each UMI, the alignment are checked per gene-wise, and a single read is chos
 
 
 # Usage
+First, you generate makefile and other scripts as
 
-    ruby makemakefile.rb -i al_S2_L8_In_crp18_Rd-PE.fq.gz \
-              -r al_S2_L8_Rd_trm75chc.fq.gz \
+    ruby makescripts.rb -i index_umi_read18.fq.gz \
+              -r main_read.fq.gz \
               -s index.list \
-              -t /home/tomoaki/Ppatens/v3.3/Ppatrans2genemap \
-              -R /home/tomoaki/Ppatens/v3.3/PpatensV3.3 
+              -t $HOME/Ppatens/v3.3/Ppatrans2genemap \
+              -R $HOME/Ppatens/v3.3/PpatensV3.3 
+
+After having generated Makefile by above command, you may simply
+    make all
+to do on a single machine.
+Alternatively,
+    qsub jobs/split_fq
+    qsub -hold_jid [jobid shown by the above command] jobs/rsem
+    qsub -hold_jid [jobid shown by the above command] jobs/combine
+can be used to submit to a grid endgine (SGE/UGE) controled cluster machines. 
+Note the second job are run in multiple nodes as an array job.  
+The parameters for the job may be edited manually
+before submission to the grid engine.
+
+The script generation and submission can be done in one command (not implemented yet)
+    ruby makescripts.rb -i index_umi_read18.fq.gz \
+              -r main_read.fq.gz \
+              -s index.list \
+              -t $HOME/Ppatens/v3.3/Ppatrans2genemap \
+              -R $HOME/Ppatens/v3.3/PpatensV3.3 \
+              -g grid.cnf \
+              --submit
 
 # Input data
 As input data, this program requires sequence and sample information files. 

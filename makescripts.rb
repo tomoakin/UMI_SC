@@ -13,8 +13,17 @@
 # bowtie threads
 # samtools sort threads
 
+grid_conf_default = <<EOS
+split_fq: -pe def_slot 1-3
+map: -pe def_slot 1-20
+sort: -pe def_slot 1-20
+unify: -pe def_slot 1-2
+rsem: -pe def_slot 1-20
+combine: -pe def_slot 1-2
+EOS
 
 require 'optparse'
+require 'yaml'
 
 options = {}
 OptionParser.new do |opts|
@@ -36,8 +45,14 @@ OptionParser.new do |opts|
     options[:trans2genemap] = f
   end
 
-  opts.on("-pINT", "--proc INT", Integer, "number of processors to use") do |p|
+  opts.on("-pINT", "--proc=INT", Integer, "number of processors to use") do |p|
     options[:p] = p
+  end
+  opts.on("-g FILE", "--grid-conf=FILE", String, "grid configuration") do |f|
+    options[:grid] = f
+  end
+  opts.on("-G", "--submit", "grid configuration") do |v|
+    options[:submit] = v
   end
 
   opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
@@ -46,6 +61,12 @@ OptionParser.new do |opts|
 end.parse!
 
 sample_file = options[:sample_file]
+
+if options[:grid] != nil
+  grid_resource=YAML.load_file(options[:grid])
+else
+  grid_resource=YAML.load(grid_conf_default)
+end
 
 indices = Array.new
 
@@ -58,6 +79,7 @@ mf=open("Makefile", "w")
 mf.puts "SHELL := /bin/bash"
 mf.puts "all: genes.count.matrix isoforms.count.matrix"
 mf.puts ".PHONY: sub_clean"
+mf.puts ".PHONY: split_fq"
 
 mf.puts "ifdef NSLOTS"
 mf.puts '  thread_arg = -p ${NSLOTS}'
@@ -93,6 +115,8 @@ else
   read_fq_dec = read_fq_z
 end
 
+mf.puts "split_fq: #{read_fq_targets}\n\n"
+
 mf.puts "#{read_fq_targets}: #{read_fq_z} #{index_fq_z} #{sample_file}"
 mf.puts "\truby sortbarcode1.rb #{index_fq_dec} #{read_fq_dec} #{sample_file}"
 
@@ -115,10 +139,18 @@ mf.puts
 
 system("mkdir -p jobs")
 system("mkdir -p logs")
+open("jobs/split_fq", "w") do |jf|
+  jf.puts "#!/bin/bash"
+  jf.puts "#$ -cwd -S /bin/bash -V"
+  jf.puts "#$ -e logs -o logs"
+  jf.puts "#$ #{grid_resource["split"]}"
+  jf.puts "make split_fq"
+end
+
 open("jobs/map","w") do |jf|
   jf.puts "#!/bin/bash"
   jf.puts "#$ -cwd -S /bin/bash -V"
-  jf.puts "#$ -pe def_slot 1-20"
+  jf.puts "#$ #{grid_resource["map"]}"
   jf.puts "#$ -e logs -o logs"
   jf.puts "#$ -t 1:#{indices.size}"
   jf.puts "samples=(dummy #{samples})"
@@ -134,7 +166,7 @@ mf.puts "\tsamtools sort -n -o $@ $(thread_arg_sort) $<"
 open("jobs/sort","w") do |jf|
   jf.puts "#!/bin/bash"
   jf.puts "#$ -cwd -S /bin/bash -V"
-  jf.puts "#$ -pe def_slot 1-20"
+  jf.puts "#$ #{grid_resource["sort"]}"
   jf.puts "#$ -e logs -o logs"
   jf.puts "#$ -t 1:#{indices.size}"
   jf.puts "samples=(dummy #{samples})"
@@ -150,7 +182,7 @@ mf.puts "\tsamtools view -h -F 4 $< | ruby unify2.rb /home/tomoaki/Ppatens/v3.3/
 open("jobs/unify","w") do |jf|
   jf.puts "#!/bin/bash"
   jf.puts "#$ -cwd -S /bin/bash -V"
-  jf.puts "#$ -pe def_slot 1-20"
+  jf.puts "#$ #{grid_resource["unify"]}"
   jf.puts "#$ -e logs -o logs"
   jf.puts "#$ -t 1:#{indices.size}"
   jf.puts "samples=(dummy #{samples})"
@@ -169,7 +201,7 @@ end
 open("jobs/rsem","w") do |jf|
   jf.puts "#!/bin/bash"
   jf.puts "#$ -cwd -S /bin/bash -V"
-  jf.puts "#$ -pe def_slot 1-20"
+  jf.puts "#$ #{grid_resource["rsem"]}"
   jf.puts "#$ -e logs -o logs"
   jf.puts "#$ -t 1:#{indices.size}"
   jf.puts "samples=(dummy #{samples})"
@@ -186,7 +218,7 @@ open("jobs/combine","w") do |jf|
   jf.puts "#!/bin/bash"
   jf.puts "#$ -cwd -S /bin/bash -V"
   jf.puts "#$ -e logs -o logs"
-  jf.puts "#$ -pe def_slot 1-20"
+  jf.puts "#$ #{grid_resource["combine"]}"
   jf.puts "N=$NSLOTS"
   jf.puts "NSLOTS=1 make -j $N all"
 end
