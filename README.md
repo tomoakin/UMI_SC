@@ -23,15 +23,18 @@ After having generated Makefile by above command, you may simply
     make all
 to do on a single machine.
 Alternatively,
+
     qsub jobs/split_fq
     qsub -hold_jid [jobid shown by the above command] jobs/rsem
     qsub -hold_jid [jobid shown by the above command] jobs/combine
+
 can be used to submit to a grid endgine (SGE/UGE) controled cluster machines. 
 Note the second job are run in multiple nodes as an array job.  
 The parameters for the job may be edited manually
 before submission to the grid engine.
 
 The script generation and submission can be done in one command
+
     ruby $HOME/UMI_SC/makescripts.rb -i index_umi_read18.fq.gz \
               -r main_read.fq.gz \
               -s index.list \
@@ -64,6 +67,7 @@ This package requries the following programs (tested version)
 If these programs are not installed, you can install with LPM (a local package manager written by Masahiro Kasahara 
 at the University of Tokyo; the original site is currently down).
 If you have not installed LPM you can do so with:
+
     wget https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/lpm
     chmod +x lpm
     lpm initlocaldir
@@ -71,12 +75,14 @@ If you have not installed LPM you can do so with:
 logout and login
 
 Provided that you have LPM installed, required softwares could be installed as follows:
+
     lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/ruby.lpm
     lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/samtools.lpm
     lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/bowtie.lpm
     lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/rsem.lpm
 
 To compile R you may need a number of prerequisites on CentOS/RHEL 6
+
     lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/libbz2.lpm
     lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/xz.lpm
     lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/zlib.lpm
