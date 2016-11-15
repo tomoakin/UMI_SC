@@ -13,7 +13,7 @@ For each UMI, the alignment are checked per gene-wise, and a single read is chos
 # Usage
 First, you generate makefile and other scripts as
 
-    ruby makescripts.rb -i index_umi_read18.fq.gz \
+    ruby $HOME/UMI_SC/makescripts.rb -i index_umi_read18.fq.gz \
               -r main_read.fq.gz \
               -s index.list \
               -t $HOME/Ppatens/v3.3/Ppatrans2genemap \
@@ -32,7 +32,7 @@ The parameters for the job may be edited manually
 before submission to the grid engine.
 
 The script generation and submission can be done in one command
-    ruby makescripts.rb -i index_umi_read18.fq.gz \
+    ruby $HOME/UMI_SC/makescripts.rb -i index_umi_read18.fq.gz \
               -r main_read.fq.gz \
               -s index.list \
               -t $HOME/Ppatens/v3.3/Ppatrans2genemap \

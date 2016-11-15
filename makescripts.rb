@@ -118,7 +118,7 @@ end
 mf.puts "split_fq: #{read_fq_targets}\n\n"
 
 mf.puts "#{read_fq_targets}: #{read_fq_z} #{index_fq_z} #{sample_file}"
-mf.puts "\truby sortbarcode1.rb #{index_fq_dec} #{read_fq_dec} #{sample_file}"
+mf.puts "\truby #{__dir__}/sortbarcode1.rb #{index_fq_dec} #{read_fq_dec} #{sample_file}"
 
 samples = indices.map{|a| a[1]}.join(" ")
 mf.puts "sub_clean:"
@@ -177,7 +177,7 @@ end
 unifiedsams = indices.map{|a| "#{a[1]}/#{a[1]}.unified2.sam"}.join(" ")
 mf.puts "unifiedsams = #{unifiedsams}"
 mf.puts "$(unifiedsams) : %.unified2.sam : %.readname.bam "
-mf.puts "\tsamtools view -h -F 4 $< | ruby unify2.rb /home/tomoaki/Ppatens/v3.3/Ppatrans2genemap > $@"
+mf.puts "\tsamtools view -h -F 4 $< | ruby #{__dir__}/unify2.rb /home/tomoaki/Ppatens/v3.3/Ppatrans2genemap > $@"
 
 open("jobs/unify","w") do |jf|
   jf.puts "#!/bin/bash"
