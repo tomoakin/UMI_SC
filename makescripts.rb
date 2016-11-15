@@ -242,3 +242,50 @@ open("makeMatrix_isoforms.R", "w") do |rf|
   rf.puts "i_matrix = data.frame(id = dfi_#{sample_name_a[0]}$transcript_id, #{sample_name_a.map{|s| "i_#{s} = dfi_#{s}$expected_count"}.join(", ")} )"
   rf.puts 'write.table(i_matrix, "isoforms.counts.matrix")'
 end
+
+#map: -pe def_slot 1-20
+#sort: -pe def_slot 1-20
+#unify: -pe def_slot 1-2
+#rsem: -pe def_slot 1-20
+if(options[:submit])
+  qsub_response = `qsub jobs/split_fq` 
+  if options[:verbose]
+    puts "qsub jobs/split_fq" 
+    puts qsub_response
+  end
+  if qsub_response =~ /Your job (\d+)/
+    job_id = $1
+    stages=["map","sort","unify","rsem"]
+    job_id_ad = nil
+    (0..3).each do |stage_n|
+      next if grid_resource[stages[stage_n]] == grid_resource[stages[stage_n+1]]
+      if job_id_ad == nil
+        qsub_response = `qsub -hold_jid #{job_id} jobs/#{stages[stage_n]}`
+        if options[:verbose]
+          puts "qsub -hold_jid #{job_id} jobs/#{stages[stage_n]}"
+        end
+      else
+        qsub_response = `qsub -hold_jid_ad #{job_id_ad} jobs/#{stages[stage_n]}`
+        if options[:verbose]
+          puts "qsub -hold_jid_ad #{job_id_ad} jobs/#{stages[stage_n]}"
+        end
+      end
+      if options[:verbose]
+        puts qsub_response
+      end
+      if qsub_response =~ /Your job-array (\d+)\./
+        job_id_ad = $1
+      end
+    end
+    if options[:verbose]
+      puts "qsub -hold_jid #{job_id_ad} jobs/combine"
+    end
+    qsub_response = `qsub -hold_jid #{job_id_ad} jobs/combine`
+    if options[:verbose]
+      puts qsub_response
+    end
+  else
+    puts "qsub response parse error"
+  end
+end
+   

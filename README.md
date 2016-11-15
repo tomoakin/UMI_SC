@@ -31,14 +31,14 @@ Note the second job are run in multiple nodes as an array job.
 The parameters for the job may be edited manually
 before submission to the grid engine.
 
-The script generation and submission can be done in one command (not implemented yet)
+The script generation and submission can be done in one command
     ruby makescripts.rb -i index_umi_read18.fq.gz \
               -r main_read.fq.gz \
               -s index.list \
               -t $HOME/Ppatens/v3.3/Ppatrans2genemap \
               -R $HOME/Ppatens/v3.3/PpatensV3.3 \
               -g grid.cnf \
-              --submit
+              --submit -v
 
 # Input data
 As input data, this program requires sequence and sample information files. 
