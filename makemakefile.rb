@@ -96,8 +96,9 @@ end
 mf.puts "#{read_fq_targets}: #{read_fq_z} #{index_fq_z} #{sample_file}"
 mf.puts "\truby sortbarcode1.rb #{index_fq_dec} #{read_fq_dec} #{sample_file}"
 
+samples = indices.map{|a| a[1]}.join(" ")
 mf.puts "sub_clean:"
-mf.puts "\trm -rf #{indices.map{|a| a[1]}.join(" ")}"
+mf.puts "\trm -rf #{samples}"
 
 #rule for mapping
 bams = indices.map{|a| "#{a[1]}/#{a[1]}.bam"}.join(" ")
@@ -112,15 +113,50 @@ indices.each do |ip|
 end
 mf.puts
 
+system("mkdir -p jobs")
+system("mkdir -p logs")
+open("jobs/map","w") do |jf|
+  jf.puts "#!/bin/bash"
+  jf.puts "#$ -cwd -S /bin/bash -V"
+  jf.puts "#$ -pe def_slot 1-20"
+  jf.puts "#$ -e logs -o logs"
+  jf.puts "#$ -t 1:#{indices.size}"
+  jf.puts "samples=(dummy #{samples})"
+  jf.puts "sample=${samples[$SGE_TASK_ID]}"
+  jf.puts "make $sample/$sample.bam"
+end
+
 sortedbams = indices.map{|a| "#{a[1]}/#{a[1]}.readname.bam"}.join(" ")
 mf.puts "sortedbams = #{sortedbams}"
 mf.puts "$(sortedbams) : %.readname.bam : %.bam"
 mf.puts "\tsamtools sort -n -o $@ $(thread_arg_sort) $<"
 
+open("jobs/sort","w") do |jf|
+  jf.puts "#!/bin/bash"
+  jf.puts "#$ -cwd -S /bin/bash -V"
+  jf.puts "#$ -pe def_slot 1-20"
+  jf.puts "#$ -e logs -o logs"
+  jf.puts "#$ -t 1:#{indices.size}"
+  jf.puts "samples=(dummy #{samples})"
+  jf.puts "sample=${samples[$SGE_TASK_ID]}"
+  jf.puts "make $sample/$sample.readname.bam"
+end
+
 unifiedsams = indices.map{|a| "#{a[1]}/#{a[1]}.unified2.sam"}.join(" ")
 mf.puts "unifiedsams = #{unifiedsams}"
 mf.puts "$(unifiedsams) : %.unified2.sam : %.readname.bam "
 mf.puts "\tsamtools view -h -F 4 $< | ruby unify2.rb /home/tomoaki/Ppatens/v3.3/Ppatrans2genemap > $@"
+
+open("jobs/unify","w") do |jf|
+  jf.puts "#!/bin/bash"
+  jf.puts "#$ -cwd -S /bin/bash -V"
+  jf.puts "#$ -pe def_slot 1-20"
+  jf.puts "#$ -e logs -o logs"
+  jf.puts "#$ -t 1:#{indices.size}"
+  jf.puts "samples=(dummy #{samples})"
+  jf.puts "sample=${samples[$SGE_TASK_ID]}"
+  jf.puts "make $sample/$sample.unified2.sam"
+end
 
 iso_results = indices.map{|a| "#{a[1]}/#{a[1]}.isoforms.results"}.join(" ")
 gen_results = indices.map{|a| "#{a[1]}/#{a[1]}.genes.results"}.join(" ")
@@ -130,8 +166,27 @@ indices.each do |a|
   mf.puts "\t(cd #{s}; rsem-calculate-expression $(thread_arg) --forward-prob=0.95 --sam #{s}.unified2.sam #{options[:ref_name]} #{s})"
 end
 
+open("jobs/rsem","w") do |jf|
+  jf.puts "#!/bin/bash"
+  jf.puts "#$ -cwd -S /bin/bash -V"
+  jf.puts "#$ -pe def_slot 1-20"
+  jf.puts "#$ -e logs -o logs"
+  jf.puts "#$ -t 1:#{indices.size}"
+  jf.puts "samples=(dummy #{samples})"
+  jf.puts "sample=${samples[$SGE_TASK_ID]}"
+  jf.puts "make $sample/$sample.genes.results"
+end
 
 mf.puts "isoforms.count.matrix: #{iso_results}"
 mf.puts "\trsem-generate-data-matrix $? > $@"
 mf.puts "genes.count.matrix: #{gen_results}"
 mf.puts "\trsem-generate-data-matrix $? > $@"
+
+open("jobs/combine","w") do |jf|
+  jf.puts "#!/bin/bash"
+  jf.puts "#$ -cwd -S /bin/bash -V"
+  jf.puts "#$ -e logs -o logs"
+  jf.puts "#$ -pe def_slot 1-20"
+  jf.puts "N=$NSLOTS"
+  jf.puts "NSLOTS=1 make -j $N all"
+end
