@@ -46,12 +46,13 @@ The script generation and submission can be done in one command
 ## Input data
 As input data, this program requires sequence and sample information files. 
 * read data fastq files
-** read data file containing cDNA sequences 
-** index read data file containing 8 nt index and 12 nt unique molecule identifier sequence
-* sample information file: tabseparated file of index sequence and sample name. sample name should be consisting of characters that can be used for file names (i.e., no /, no :).
+ * read data file containing cDNA sequences 
+ * index read data file containing 8 nt index and some (say 10 nt) unique molecule identifier sequence
+ * sample information file: tab separated file of index sequence and sample name. sample name should be consisting of characters that can be used for file names (i.e., no special characters like '/' or ':').
 
 * For reference, a reference created with rsem-prepare-reference and the transcript-to-gene-map
-should be specified.
+should be specified. Please refer to http://deweylab.biostat.wisc.edu/rsem/rsem-prepare-reference.html
+for these files.
 
 ## grid configuration file
 grid.cfg specifies the resource request for the grid engine.
