@@ -45,6 +45,9 @@ OptionParser.new do |opts|
     options[:trans2genemap] = f
   end
 
+  opts.on("-uINT", "--umi-length=INT", "the length of unique molecular identifier [10]") do |l|
+    options[:u] = l
+  end
   opts.on("-pINT", "--proc=INT", Integer, "number of processors to use") do |p|
     options[:p] = p
   end
@@ -66,6 +69,12 @@ if options[:grid] != nil
   grid_resource=YAML.load_file(options[:grid])
 else
   grid_resource=YAML.load(grid_conf_default)
+end
+
+if options[:u] != nil
+  umi_length = options[:u]
+else
+  umi_length = 10
 end
 
 indices = Array.new
@@ -177,7 +186,7 @@ end
 unifiedsams = indices.map{|a| "#{a[1]}/#{a[1]}.unified2.sam"}.join(" ")
 mf.puts "unifiedsams = #{unifiedsams}"
 mf.puts "$(unifiedsams) : %.unified2.sam : %.readname.bam "
-mf.puts "\tsamtools view -h -F 4 $< | ruby #{__dir__}/unify2.rb /home/tomoaki/Ppatens/v3.3/Ppatrans2genemap > $@"
+mf.puts "\tsamtools view -h -F 4 $< | ruby #{__dir__}/unify2.rb #{umi_length} #{options[:trans2genemap]} > $@"
 
 open("jobs/unify","w") do |jf|
   jf.puts "#!/bin/bash"

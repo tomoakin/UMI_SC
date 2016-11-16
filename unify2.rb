@@ -2,6 +2,7 @@
 require 'set'
 #require 'bio'
 
+umi_length = ARGV.shift.to_i
 gene_trans_map = ARGV.shift
 
 class Sam
@@ -111,7 +112,7 @@ ARGF.each_line do |line|
   end
   sam=Sam.new(line)
   read_id = sam.query
-  umi = read_id[0..7]
+  umi = read_id[0...umi_length]
   if umi!= last_umi
     select_record_from_umi(reads, trans2gene) unless reads.size==0
     reads=Array.new
