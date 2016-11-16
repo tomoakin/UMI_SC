@@ -74,6 +74,9 @@ should be referred.
 
 
 # Installation
+## Clone from github
+
+    git clone https://github.com/tomoakin/UMI_SC.git
 
 ## Requirements
 This package requries the following programs (tested version)
