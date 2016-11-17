@@ -11,9 +11,10 @@ fp_array_init(fp_array*fp_a)
   fp_a->used_slots = 0;
   fp_a->base = malloc(sizeof(FILE*)*default_size);
   fp_a->allocated_slots = default_size;
+  return fp_a;
 }
 
-fp_array*
+void
 fp_array_expand(fp_array*fp_a, size_t new_size)
 {
   fp_a->base = realloc(fp_a->base, sizeof(FILE*)*new_size);

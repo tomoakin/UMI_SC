@@ -1,6 +1,4 @@
-#include<malloc.h>
 #include<stdint.h>
-
 /* public declarations */
 typedef struct _DNA_trie_node{
   uint32_t node_A;

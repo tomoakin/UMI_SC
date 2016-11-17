@@ -1,6 +1,16 @@
 #include<malloc.h>
+#include<stdlib.h>
 #include<stdint.h>
 #include "trie.h"
+
+void
+trie_expand(DNA_trie* trie)
+{
+  size_t new_alloc = trie-> allocated_nodes * 3 >> 1;
+  DNA_trie_node* retval = realloc(trie->base, new_alloc * sizeof(DNA_trie_node));
+  if(!retval) exit(1);
+  trie -> allocated_nodes = new_alloc;
+}
 
 uint32_t
 trie_get_new_node(DNA_trie* trie)
@@ -30,13 +40,6 @@ trie_init(DNA_trie* trie)
   trie->used_nodes = 0;
   trie_get_new_node(trie); /*init root node*/
   return trie;
-}
-
-trie_expand(DNA_trie* trie)
-{
-  size_t new_alloc = trie-> allocated_nodes * 3 >> 1;
-  DNA_trie_node* retval = realloc(trie->base, new_alloc * sizeof(DNA_trie_node));
-  trie -> allocated_nodes = new_alloc;
 }
 
 int

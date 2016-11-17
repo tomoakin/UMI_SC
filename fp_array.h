@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-#include "trie.h"
-
 /* public declarations */
 
 typedef struct _fp_array{
@@ -10,7 +8,7 @@ typedef struct _fp_array{
   size_t allocated_slots;
 } fp_array;
 
-fp_array* name_array_init(fp_array*);
+fp_array* fp_array_init(fp_array*);
 
 int fp_array_set(fp_array*, int, FILE*);
 
