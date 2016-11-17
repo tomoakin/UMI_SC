@@ -24,51 +24,45 @@ fq_entry*
 get_fqentry(FILE* in, fq_entry*fqe)
 {
   char*str;
-  char *p;
   int charindex;
   int curchar;
   str = fqe->entry;
-  p = fgets(str, bufsize, in);
-  if(p == NULL){
-    return NULL;
-  }
   fqe -> length = 0;
-  charindex = 1;
-  while(str[charindex] && !isspace(str[charindex])){
-    charindex +=1;
-  }
-  if(str[charindex] == '\0'){
-    exit(EXIT_FAILURE);
-  }
-  while(str[charindex] != '\n'){
-    charindex += 1;
-  }
-  fqe->seq = str + charindex + 1;
-  while((curchar=fgetc(in))){
-    charindex += 1;
+  charindex = 0;
+  /* first id line */
+  while((curchar=fgetc(in))!=EOF){
     str[charindex] = curchar;
+    charindex += 1;
+    if(curchar == '\n'){
+      break;
+    }
+  }
+  if(curchar == EOF) return NULL;
+  fqe->seq = str + charindex;
+  while((curchar=fgetc(in))!=EOF){
+    str[charindex] = curchar;
+    charindex += 1;
     if(curchar == '\n'){
       break;
     }
     fqe->length += 1;
   }
   /* second id line */
-  while((curchar=fgetc(in))){
-    charindex += 1;
+  while((curchar=fgetc(in))!=EOF){
     str[charindex] = curchar;
+    charindex += 1;
     if(curchar == '\n'){
       break;
     }
   }
   /* the qv line */
-  while((curchar=fgetc(in))){
-    charindex += 1;
+  while((curchar=fgetc(in))!=EOF){
     str[charindex] = curchar;
+    charindex += 1;
     if(curchar == '\n'){
       break;
     }
   }
-  charindex += 1;
   fqe->entry_size = charindex;
   str[charindex]='\0';
   return fqe;
