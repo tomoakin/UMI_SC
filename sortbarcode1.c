@@ -136,8 +136,9 @@ main(int argc, char**argv)
       uint32_t sample_number;
       char umi[100];
       int charindex = 0;
-      char *barcode = strndup(fqi->seq,index_length);
-  //    fprintf(stderr, "%s\n", barcode); 
+      char barcode[index_length + 1];
+      strncpy(barcode, fqi->seq, index_length);
+      barcode[index_length] = '\0';
       sample_number = trie_find_data(&index_hash, barcode);
       if(sample_number){
         ofp_i = fp_array_get(&fp_a, sample_number * 2 - 1);
@@ -154,14 +155,11 @@ main(int argc, char**argv)
         }
       }
       umi[charindex] = '\0';
-  //    fprintf(stderr, "%s\t%d\n", umi,charindex);
       fputc('@', ofp_i);
-      fputc('@', ofp_r);
       fwrite(umi, charindex, 1, ofp_i); /* insert umi in the readname */
-      fwrite(umi, charindex, 1, ofp_r);
-  //    fprintf(stderr, "%s\t%d\n", fqi->entry+1,fqi->entry_size);
-  //    fprintf(stderr, "%s\t%d\n", fqr->entry+1,fqr->entry_size);
       fwrite(fqi->entry+1,fqi->entry_size - 1, 1, ofp_i);
+      fputc('@', ofp_r);
+      fwrite(umi, charindex, 1, ofp_r);
       fwrite(fqr->entry+1,fqr->entry_size - 1, 1, ofp_r);
     }
   }
