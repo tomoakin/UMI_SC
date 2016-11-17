@@ -14,17 +14,14 @@ typedef struct _fqe
   char *seq;
   char *entry;
 } fq_entry;
-void free_fqentry(fq_entry* entry)
-{
-  free(entry->entry);
-  free(entry);
-}
+
 fq_entry*
 get_fqentry(FILE* in, fq_entry*fqe)
 {
   char*str;
   int charindex;
   int curchar;
+  int ln = 0;
   str = fqe->entry;
   charindex = 0;
   /* first id line */
@@ -32,34 +29,13 @@ get_fqentry(FILE* in, fq_entry*fqe)
     str[charindex] = curchar;
     charindex += 1;
     if(curchar == '\n'){
+      if (ln == 0) fqe->seq = str + charindex;
+      ln ++;
+      if (ln ==4)
       break;
     }
   }
   if(curchar == EOF) return NULL;
-  fqe->seq = str + charindex;
-  while((curchar=fgetc(in))!=EOF){
-    str[charindex] = curchar;
-    charindex += 1;
-    if(curchar == '\n'){
-      break;
-    }
-  }
-  /* second id line */
-  while((curchar=fgetc(in))!=EOF){
-    str[charindex] = curchar;
-    charindex += 1;
-    if(curchar == '\n'){
-      break;
-    }
-  }
-  /* the qv line */
-  while((curchar=fgetc(in))!=EOF){
-    str[charindex] = curchar;
-    charindex += 1;
-    if(curchar == '\n'){
-      break;
-    }
-  }
   fqe->entry_size = charindex;
   str[charindex]='\0';
   return fqe;
