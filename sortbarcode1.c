@@ -10,7 +10,6 @@
 static const size_t bufsize = 4000;
 typedef struct _fqe
 {
-  int length;
   int entry_size;
   char *seq;
   char *entry;
@@ -27,7 +26,6 @@ get_fqentry(FILE* in, fq_entry*fqe)
   int charindex;
   int curchar;
   str = fqe->entry;
-  fqe -> length = 0;
   charindex = 0;
   /* first id line */
   while((curchar=fgetc(in))!=EOF){
@@ -45,7 +43,6 @@ get_fqentry(FILE* in, fq_entry*fqe)
     if(curchar == '\n'){
       break;
     }
-    fqe->length += 1;
   }
   /* second id line */
   while((curchar=fgetc(in))!=EOF){
