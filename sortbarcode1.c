@@ -3,64 +3,54 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <assert.h>
 #include "trie.h"
 #include "fp_array.h"
 
-typedef struct fqe
+static const size_t bufsize = 4000;
+typedef struct _fqe
 {
   int length;
   int entry_size;
-  char *id;
   char *seq;
-  char *qv;
   char *entry;
 } fq_entry;
 void free_fqentry(fq_entry* entry)
 {
-  free(entry->id);
   free(entry->entry);
   free(entry);
 }
 fq_entry*
-get_fqentry(FILE* in)
+get_fqentry(FILE* in, fq_entry*fqe)
 {
   char*str;
   char *p;
-  fq_entry* retv;
   int charindex;
   int curchar;
-  const int bufsize = 4000;
-  const int maxidbuf = 2000;
-  str = malloc(bufsize);
+  str = fqe->entry;
   p = fgets(str, bufsize, in);
   if(p == NULL){
-    free(str);
     return NULL;
   }
-  retv = malloc(sizeof(fq_entry));
-  retv -> entry = str;
-  retv -> id = malloc(maxidbuf);
-  retv -> length = 0;
+  fqe -> length = 0;
   charindex = 1;
-  while(str[charindex] && !isspace(str[charindex]) && charindex < maxidbuf){
-    retv->id[charindex-1]=str[charindex]; /* strip the begining '@' */
+  while(str[charindex] && !isspace(str[charindex])){
     charindex +=1;
   }
-  retv->id[charindex-1]='\0';
   if(str[charindex] == '\0'){
     exit(EXIT_FAILURE);
   }
   while(str[charindex] != '\n'){
     charindex += 1;
   }
-  retv -> seq = str + charindex + 1;
+  fqe->seq = str + charindex + 1;
   while((curchar=fgetc(in))){
     charindex += 1;
     str[charindex] = curchar;
     if(curchar == '\n'){
       break;
     }
-    retv->length += 1;
+    fqe->length += 1;
   }
   /* second id line */
   while((curchar=fgetc(in))){
@@ -71,7 +61,6 @@ get_fqentry(FILE* in)
     }
   }
   /* the qv line */
-  retv -> qv = str + charindex + 1;
   while((curchar=fgetc(in))){
     charindex += 1;
     str[charindex] = curchar;
@@ -80,9 +69,9 @@ get_fqentry(FILE* in)
     }
   }
   charindex += 1;
-  retv->entry_size = charindex;
+  fqe->entry_size = charindex;
   str[charindex]='\0';
-  return retv;
+  return fqe;
 }
 
 extern char *optarg;
@@ -133,8 +122,12 @@ main(int argc, char**argv)
   load_sample(sample_file, &index_hash, &fp_a);
   filei = fopen(argv[optind+1],"r");
   filer = fopen(argv[optind+2],"r");
-  while((fqi = get_fqentry(filei))){
-    fqr = get_fqentry(filer);
+  fqi = malloc(sizeof(fq_entry));
+  fqr = malloc(sizeof(fq_entry));
+  fqi->entry = malloc(bufsize);
+  fqr->entry = malloc(bufsize);
+  while((fqi = get_fqentry(filei, fqi))){
+    fqr = get_fqentry(filer, fqr);
 
 /*
   curbarcode = ie.sequence_string[0,barcode_length].upcase
@@ -147,10 +140,10 @@ main(int argc, char**argv)
     { 
       FILE *ofp_i, *ofp_r;
       uint32_t sample_number;
-      char *umi;
+      char umi[100];
       int charindex = 0;
       char *barcode = strndup(fqi->seq,index_length);
-/*      fprintf(stderr, "%s\n", barcode); */
+  //    fprintf(stderr, "%s\n", barcode); 
       sample_number = trie_find_data(&index_hash, barcode);
       if(sample_number){
         ofp_i = fp_array_get(&fp_a, sample_number * 2 - 1);
@@ -159,7 +152,6 @@ main(int argc, char**argv)
         ofp_i = f_i;
         ofp_r = f_r;
       }
-      umi = malloc(100);
       while(*(fqi->seq + index_length + charindex) != '\n'){
         umi[charindex] = *(fqi->seq + index_length + charindex);
         charindex ++;
@@ -168,17 +160,16 @@ main(int argc, char**argv)
         }
       }
       umi[charindex] = '\0';
-/*      fprintf(stderr, "%s\n", umi);*/
+  //    fprintf(stderr, "%s\t%d\n", umi,charindex);
       fputc('@', ofp_i);
       fputc('@', ofp_r);
-      fputs(umi, ofp_i); /* insert umi in the readname */
-      fputs(umi, ofp_r);
-      fputs(fqi->entry+1, ofp_i);
-      fputs(fqr->entry+1, ofp_r);
-      free(umi);
+      fwrite(umi, charindex, 1, ofp_i); /* insert umi in the readname */
+      fwrite(umi, charindex, 1, ofp_r);
+  //    fprintf(stderr, "%s\t%d\n", fqi->entry+1,fqi->entry_size);
+  //    fprintf(stderr, "%s\t%d\n", fqr->entry+1,fqr->entry_size);
+      fwrite(fqi->entry+1,fqi->entry_size - 1, 1, ofp_i);
+      fwrite(fqr->entry+1,fqr->entry_size - 1, 1, ofp_r);
     }
-    free_fqentry(fqi);
-    free_fqentry(fqr);
   }
   return EXIT_SUCCESS;
 }
