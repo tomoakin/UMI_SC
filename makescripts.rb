@@ -144,7 +144,7 @@ mf.puts "\trm -rf #{samples}"
 #rule for mapping
 bams = indices.map{|a| "#{a[1]}/#{a[1]}.bam"}.join(" ")
 mf.puts "bams = #{bams}"
-mf.puts "$(bams) : #{options[:ref_name]}.rev.1.bt2"
+mf.puts "$(bams) : #{options[:ref_name]}.rev.1.ebwt"
 mf.puts
 
 indices.each do |ip|
