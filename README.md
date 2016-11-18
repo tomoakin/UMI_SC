@@ -11,6 +11,7 @@ For each UMI, the alignment are checked per gene-wise, and a single read is chos
 
 
 # Usage
+
 First, you generate makefile and other scripts as
 
     ruby $HOME/UMI_SC/makescripts.rb -i index_umi_read18.fq.gz \
@@ -48,12 +49,33 @@ As input data, this program requires sequence and sample information files.
 * read data fastq files
  * read data file containing cDNA sequences 
  * index read data file containing 8 nt index and some (say 10 nt) unique molecule identifier sequence
- * sample information file: tab separated file of index sequence and sample name. sample name should be consisting of characters that can be used for file names (i.e., no special characters like '/' or ':').
+* sample information file
+ * Tab or space separated file of index sequence and sample name.
+   sample name should be consisting of characters that can 
+  be used for file names (i.e., no special characters like '/' or ':').
 
-* For reference, a reference created with rsem-prepare-reference and the transcript-to-gene-map
+## Construction of reference
+For reference, a reference created with rsem-prepare-reference and the transcript-to-gene-map
 should be specified. Please refer to http://deweylab.biostat.wisc.edu/rsem/rsem-prepare-reference.html
 for these files.
 
+You might want to merge ERCC sequence to reference dataset.
+
+    grep ">"  YFG.transcript.fa | \
+      awk '{print $3,$1;}'| sed -e 's/.*=//' -e 's/>//' \
+       > YFG.trans2gene.map
+    # Your Favorite Genome specific conversion
+    grep ">" ERCC.fasta | sed -e 's/>//' | awk '{print $1,$1;}' \
+      ERCC.map
+    # Simple repeat
+    cat YFG.transcript.fa ERCC.fa > YFGERCC.fa
+    cat YFG.trans2gene.map ERCC.map > YFGERCC.map
+    # Just concatenate
+    rsem-prepare-reference --transcript-to-gene-map YFGERCC.map \
+       --bowtie \
+       YFGERCC.fa YFGERCC
+    #Finally, prepare the reference.
+ 
 ## grid configuration file
 grid.cfg specifies the resource request for the grid engine.
 an example is shown below
@@ -77,12 +99,18 @@ should be referred.
 ## Clone from github
 
     git clone https://github.com/tomoakin/UMI_SC.git
+
+## Compile C code
+
     cd UMI_SC
     make
 
+This compiles C version of sortbarcode1, which is an order faster than
+ruby implementation, and do not require Bioruby library.
+
 ## Requirements
 This package requries the following programs (tested version)
-* ruby (2.3)
+* ruby (2.3) and Bioruby library (if not compiling C version of sortbarcode1)
 * samtools (1.3.1)
 * bowtie (1.1.2)
 * RSEM (rsem-1.3.0)
