@@ -88,7 +88,9 @@ mf=open("Makefile", "w")
 
 mf.puts "SHELL := /bin/bash"
 mf.puts "all: genes.count.matrix isoforms.count.matrix"
-mf.puts ".PHONY: sub_clean"
+mf.puts ".PHONY: clean_subdirs"
+mf.puts ".PHONY: clean_fq"
+mf.puts ".PHONY: clean"
 mf.puts ".PHONY: split_fq"
 
 mf.puts "ifdef NSLOTS"
@@ -105,6 +107,7 @@ end
 mf.puts "endif"
 
 read_fq_targets = indices.map{|a| "#{a[1]}_read.fq"}.join(" ")
+index_fq_targets = indices.map{|a| "#{a[1]}_index.fq"}.join(" ")
 
 index_fq_z=options[:index_fq_z]
 read_fq_z=options[:read_fq_z]
@@ -136,9 +139,13 @@ elsif
 end
 mf.puts "#{read_fq_targets}: #{read_fq_z} #{index_fq_z} #{sample_file}"
 mf.puts "\t#{sortbarcode1_prog} #{sample_file} #{index_fq_dec} #{read_fq_dec}"
+mf.puts "clean: clean_fq clean_subdirs"
+mf.puts "clean_fq:"
+mf.puts "\trm -r #{read_fq_targets}"
+mf.puts "\trm -r #{index_fq_targets}"
 
 samples = indices.map{|a| a[1]}.join(" ")
-mf.puts "sub_clean:"
+mf.puts "clean_subdirs:"
 mf.puts "\trm -rf #{samples}"
 
 #rule for mapping
