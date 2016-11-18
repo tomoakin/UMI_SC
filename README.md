@@ -66,15 +66,15 @@ You might want to merge ERCC sequence to reference dataset.
        > YFG.trans2gene.map
     # Your Favorite Genome specific conversion
     grep ">" ERCC.fasta | sed -e 's/>//' | awk '{print $1,$1;}' \
-      ERCC.map
-    # Simple repeat
-    cat YFG.transcript.fa ERCC.fa > YFGERCC.fa
+      >ERCC.map
+    # Simply repeat the id as both gene and transcript
     cat YFG.trans2gene.map ERCC.map > YFGERCC.map
     # Just concatenate
     rsem-prepare-reference --transcript-to-gene-map YFGERCC.map \
        --bowtie \
-       YFGERCC.fa YFGERCC
-    #Finally, prepare the reference.
+       YFG.transcript.fa,ERCC.fa YFGERCC
+    # Finally, prepare the reference. You need not concatenate the fasta files.
+    # Just listing the files separated with a comma is sufficient.
  
 ## grid configuration file
 grid.cfg specifies the resource request for the grid engine.
