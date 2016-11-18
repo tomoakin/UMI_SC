@@ -135,7 +135,7 @@ elsif
   sortbarcode1_prog = c unless c == nil
 end
 mf.puts "#{read_fq_targets}: #{read_fq_z} #{index_fq_z} #{sample_file}"
-mf.puts "\t#{sortbarcode1_prog} #{index_fq_dec} #{read_fq_dec} #{sample_file}"
+mf.puts "\t#{sortbarcode1_prog} #{sample_file} #{index_fq_dec} #{read_fq_dec}"
 
 samples = indices.map{|a| a[1]}.join(" ")
 mf.puts "sub_clean:"

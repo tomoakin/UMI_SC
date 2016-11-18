@@ -2,9 +2,9 @@
 #
 
 require 'bio'
+indexlist=ARGV.shift
 indexfile=ARGV.shift
 rnaseqfile=ARGV.shift
-indexlist=ARGV.shift
 
 barcode_length=8
 
