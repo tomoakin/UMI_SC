@@ -96,8 +96,8 @@ mf.puts '  thread_arg = -p ${NSLOTS}'
 mf.puts '  thread_arg_sort = -@ ${NSLOTS}'
 mf.puts 'else'
 if options[:p] == nil
-  mf.puts 'thread_arg = ""'
-  mf.puts 'thread_arg_sort = ""'
+  mf.puts 'thread_arg = '
+  mf.puts 'thread_arg_sort = '
 else
   mf.puts "thread_arg = \"-p #{options[:p]}\""
   mf.puts "thread_arg_sort = \"-@ #{options[:p]}\""
