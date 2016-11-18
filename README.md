@@ -77,6 +77,8 @@ should be referred.
 ## Clone from github
 
     git clone https://github.com/tomoakin/UMI_SC.git
+    cd UMI_SC
+    make
 
 ## Requirements
 This package requries the following programs (tested version)
