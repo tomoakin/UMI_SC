@@ -17,8 +17,8 @@ First, you generate makefile and other scripts as
     ruby $HOME/UMI_SC/makescripts.rb -i index_umi_read18.fq.gz \
               -r main_read.fq.gz \
               -s index.list \
-              -t $HOME/Ppatens/v3.3/Ppatrans2genemap \
-              -R $HOME/Ppatens/v3.3/PpatensV3.3 
+              -t $HOME/YFG/YFGERCC.map \
+              -R $HOME/YFG/YFGERCC
 
 After having generated Makefile by above command, you may simply
     make all
@@ -39,8 +39,8 @@ The script generation and submission can be done in one command
     ruby $HOME/UMI_SC/makescripts.rb -i index_umi_read18.fq.gz \
               -r main_read.fq.gz \
               -s index.list \
-              -t $HOME/Ppatens/v3.3/Ppatrans2genemap \
-              -R $HOME/Ppatens/v3.3/PpatensV3.3 \
+              -t $HOME/YFG/YFGERCC.map \
+              -R $HOME/YFG/YFGERCC \
               -g grid.cfg \
               --submit -v
 
