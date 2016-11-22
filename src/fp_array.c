@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -10,6 +11,10 @@ fp_array_init(fp_array*fp_a)
   size_t default_size=100;
   fp_a->used_slots = 0;
   fp_a->base = malloc(sizeof(FILE*)*default_size);
+  if(fp_a->base ==NULL){
+    fputs("malloc() failed in fp_array_init",stderr);
+    exit(1);
+  }
   fp_a->allocated_slots = default_size;
   return fp_a;
 }
@@ -18,9 +23,12 @@ void
 fp_array_expand(fp_array*fp_a, size_t new_size)
 {
   fp_a->base = realloc(fp_a->base, sizeof(FILE*)*new_size);
+  if(fp_a->base ==NULL){
+    fputs("realloc() failed in fp_array_expand",stderr);
+    exit(1);
+  }
   fp_a->allocated_slots = new_size;
 }
-
 
 int fp_array_set(fp_array* fp_a, int i, FILE* fp)
 {

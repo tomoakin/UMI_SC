@@ -77,7 +77,17 @@ main(int argc, char**argv)
   trie_init(&index_hash);
   sample_file = fopen(argv[optind],"r");
   f_i = fopen("unknown_index.fq", "w");
+  if(!f_i){
+    fputs("failed to open file: unknown_index.fq", stderr);
+    perror("");
+    exit(1);
+  }
   f_r = fopen("unknown_read.fq", "w");
+  if(!f_r){
+    fputs("failed to open file: unknown_read.fq\n", stderr);
+    perror("");
+    exit(1);
+  }
   {
     size_t block_bufsz = 16*1024*1024;
     char* block_buf_i = malloc(block_bufsz);
@@ -88,11 +98,23 @@ main(int argc, char**argv)
   }
   load_sample(sample_file, &index_hash, &fp_a);
   filei = fopen(argv[optind+1],"r");
+  if(!filei){
+    fprintf(stderr, "failed to open file: %s\n", argv[optind+1]);
+    perror("");
+    exit(1);
+  }
   filer = fopen(argv[optind+2],"r");
+  if(!filer){
+    fprintf(stderr, "failed to open file: %s\n", argv[optind+2]);
+    perror("");
+    exit(1);
+  }
   fqi = malloc(sizeof(fq_entry));
   fqr = malloc(sizeof(fq_entry));
+  if(!fqr||!fqi) exit(1);
   fqi->entry = malloc(bufsize);
   fqr->entry = malloc(bufsize);
+  if(!fqr->entry||!fqi->entry) exit(1);
   while((fqi = get_fqentry(filei, fqi))){
     fqr = get_fqentry(filer, fqr);
 

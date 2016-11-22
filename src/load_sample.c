@@ -15,8 +15,16 @@ load_sample(FILE*infile, DNA_trie*trie, fp_array *fp_a)
   size_t block_bufsz = 16*1024*1024; /* 16 MiB */
   char*filename_i,*filename_r;
   linebuf = malloc(line_bufsz);
+  if(linebuf == NULL){
+    fputs("malloc falied for linebuf in load_sample()\n", stderr);
+    exit(1);
+  }
   filename_i = malloc(line_bufsz);
   filename_r = malloc(line_bufsz);
+  if(filename_i == NULL || filename_r == NULL){
+    fputs("malloc() falied for filenames in load_sample()\n", stderr);
+    exit(1);
+  }
 
   while((retval = fgets(linebuf, line_bufsz, infile))){
     char*index;
@@ -25,9 +33,27 @@ load_sample(FILE*infile, DNA_trie*trie, fp_array *fp_a)
     FILE* f_r;
     char * block_buf_i,*block_buf_r;
     retval = strtok(linebuf, " \t\n");
+    if(retval == NULL){
+      /* probably a blank line */
+      continue;
+    }
     index = strdup(retval);
+    if(index == NULL){
+      perror("strdup index failed");
+      exit(1);
+    }
     retval = strtok(NULL, " \t\n");
+    if(retval == NULL){
+      fputs("sample index file format error\n", stderr);
+      fputs("second column (sample name) was not found\n", stderr);
+      fprintf(stderr, "first column: %s\n", index);
+      exit(1);
+    }
     sample_name = strdup(retval);
+    if(sample_name == NULL){
+      perror("strdup sample_name failed");
+      exit(1);
+    }
     /*fprintf(stderr, "sample name: %s\n", sample_name);*/
     record_count ++;
     snprintf(filename_i, line_bufsz, "%s_index.fq", sample_name);
