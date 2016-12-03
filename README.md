@@ -39,6 +39,7 @@ The script generation and submission can be done in one command
     ruby $HOME/UMI_SC/makescripts.rb -i index_umi_read18.fq.gz \
               -r main_read.fq.gz \
               -s index.list \
+              -l 8 # default index length; this can be ommitted  \
               -t $HOME/YFG/YFGERCC.map \
               -R $HOME/YFG/YFGERCC \
               -g grid.cfg \

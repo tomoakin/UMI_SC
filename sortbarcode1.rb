@@ -1,12 +1,25 @@
 #!/usr/bin/env ruby
 #
 
+require 'optparse'
 require 'bio'
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: sortbarcode1.rb [options] sample_info indexumiread read1" 
+  opts.on("-lINT", "--index-length=INT", "the length of index data preceeding unique molecular identifier [8]") do |l|
+    options[:l] = l
+  end
+end.parse!
+
 indexlist=ARGV.shift
 indexfile=ARGV.shift
 rnaseqfile=ARGV.shift
 
-barcode_length=8
+if options[:l] != nil
+  barcode_length = options[:l]
+else
+  barcode_length = 8
+end
 
 sampleif = Hash.new
 samplerf = Hash.new

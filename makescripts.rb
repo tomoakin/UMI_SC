@@ -46,6 +46,9 @@ OptionParser.new do |opts|
     options[:trans2genemap] = f
   end
 
+  opts.on("-lINT", "--index-length=INT", "the length of index data preceeding unique molecular identifier [8]") do |l|
+    options[:l] = l
+  end
   opts.on("-uINT", "--umi-length=INT", "the length of unique molecular identifier [10]") do |l|
     options[:u] = l
   end
@@ -70,6 +73,12 @@ if options[:grid] != nil
   grid_resource=YAML.load_file(options[:grid])
 else
   grid_resource=YAML.load(grid_conf_default)
+end
+
+if options[:l] != nil
+  index_length_opt = "-l #{options[:l]}"
+else
+  index_length_opt = ""
 end
 
 if options[:u] != nil
@@ -138,7 +147,7 @@ elsif
   sortbarcode1_prog = c unless c == nil
 end
 mf.puts "#{read_fq_targets}: #{read_fq_z} #{index_fq_z} #{sample_file}"
-mf.puts "\t#{sortbarcode1_prog} #{sample_file} #{index_fq_dec} #{read_fq_dec}"
+mf.puts "\t#{sortbarcode1_prog} #{index_length_opt} #{sample_file} #{index_fq_dec} #{read_fq_dec}"
 mf.puts "clean: clean_fq clean_subdirs"
 mf.puts "clean_fq:"
 mf.puts "\trm -r #{read_fq_targets}"
