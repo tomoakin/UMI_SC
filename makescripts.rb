@@ -142,8 +142,7 @@ mf.puts "split_fq: #{read_fq_targets}\n\n"
 sortbarcode1_prog = "ruby #{__dir__}/sortbarcode1.rb" # fallback ruby implementation requiring the bioruby library.
 if FileTest.executable?("#{__dir__}/sortbarcode1")
   sortbarcode1_prog = "#{__dir__}/sortbarcode1"
-elsif
-  c=find_executable(sortbarcode1)
+elsif c=find_executable('sortbarcode1')
   sortbarcode1_prog = c unless c == nil
 end
 mf.puts "#{read_fq_targets}: #{read_fq_z} #{index_fq_z} #{sample_file}"
