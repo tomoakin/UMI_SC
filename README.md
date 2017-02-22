@@ -45,6 +45,22 @@ The script generation and submission can be done in one command
               -g grid.cfg \
               --submit -v
 
+In case you want to trim the sequences, you may use -m and -o options to specify trimmomatic
+
+    ruby $HOME/UMI_SC/makescripts.rb -i index_umi_read18.fq.gz \
+              -r main_read.fq.gz \
+              -s index.list \
+              -l 8 # default index length; this can be ommitted  \
+              -t $HOME/YFG/YFGERCC.map \
+              -R $HOME/YFG/YFGERCC \
+              -g grid.cfg \
+              -m path/to/trimmomatic.jar \
+              -o "ILLUMINACLIP:adapters.fa:2:30:7 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:17" \
+              --submit -v
+
+Note "adapters.fa" is a path to a file containing the adapter sequences you are to trim. 
+Please refer to trimmomatic manual for the how to specify the options.
+
 ## Input data
 As input data, this program requires sequence and sample information files. 
 * read data fastq files

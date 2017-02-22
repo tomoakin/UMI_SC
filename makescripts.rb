@@ -13,6 +13,7 @@ require 'mkmf'
 # non essential options
 # bowtie threads
 # samtools sort threads
+# trimmomatic -threads threads
 
 grid_conf_default = <<EOS
 split_fq: -pe def_slot 1-3
@@ -38,6 +39,13 @@ OptionParser.new do |opts|
   opts.on("-sFILE", "--sample-file=FILE", "sample names for indices") do |f|
     options[:sample_file] = f
   end
+  opts.on("-m", "--trimmomatic=FILE", "path for trimmomatic") do |f|
+    options[:trimmomatic] = f
+  end
+  opts.on("-o", "--trimmomatic-options=STRING", "main options for trimmomatic") do |f|
+    options[:trimmomatic_options] = f
+  end
+
 
   opts.on("-RPATH", "--reference=PATH", "reference preprared with rsem-prepare-reference") do |f|
     options[:ref_name] = f
@@ -104,6 +112,7 @@ mf.puts ".PHONY: split_fq"
 
 mf.puts "ifdef NSLOTS"
 mf.puts '  thread_arg = -p ${NSLOTS}'
+mf.puts '  thread_arg_trim = -threads ${NSLOTS}'
 mf.puts '  thread_arg_sort = -@ ${NSLOTS}'
 mf.puts 'else'
 if options[:p] == nil
@@ -111,6 +120,7 @@ if options[:p] == nil
   mf.puts 'thread_arg_sort = '
 else
   mf.puts "thread_arg = \"-p #{options[:p]}\""
+  mf.puts "thread_arg_trim = \"-threads #{options[:p]}\""
   mf.puts "thread_arg_sort = \"-@ #{options[:p]}\""
 end
 mf.puts "endif"
@@ -156,6 +166,33 @@ samples = indices.map{|a| a[1]}.join(" ")
 mf.puts "clean_subdirs:"
 mf.puts "\trm -rf #{samples}"
 
+#rule for trimming
+trimmed_fqs = indices.map{|a| "#{a[1]}/#{a[1]}.trimmed.fq"}.join(" ")
+mf.puts "trimmed_fqs = #{trimmed_fqs}"
+mf.puts
+
+if options[:trimmomatic] != nil
+  trim_opts =  options[:trimmomatic_options] 
+  trim_opts = "\"Trimmomatic-0.33/adapters/TruSeq3-PE.fa:2:30:7 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:16\"" if trim_opts == nil
+
+  mf.puts "TRIMMOMATIC=#{options[:trimmomatic]}"
+  mf.puts "TRIM_OPTS=#{trim_opts}"
+  indices.each do |ip|
+    sample_name = ip[1]
+    mf.puts "#{sample_name}/#{sample_name}.trimmed.fq: #{sample_name}_read.fq"
+    mf.puts "\t(mkdir -p #{sample_name}; java -Xmx2g -XX:ParallelGCThreads=1 -jar $(TRIMMOMATIC) SE $(thread_arg_trim) -phred33 $< $@ $(TRIM_OPTS))"
+  end
+else
+  indices.each do |ip|
+    sample_name = ip[1]
+    mf.puts "#{sample_name}/#{sample_name}.trimmed.fq: #{sample_name}_read.fq"
+    mf.puts "\t(mkdir -p #{sample_name}; ln -s ../$< $@)"
+  end
+end
+
+mf.puts
+
+
 #rule for mapping
 bams = indices.map{|a| "#{a[1]}/#{a[1]}.bam"}.join(" ")
 mf.puts "bams = #{bams}"
@@ -164,7 +201,7 @@ mf.puts
 
 indices.each do |ip|
   sample_name = ip[1]
-  mf.puts "#{sample_name}/#{sample_name}.bam: #{sample_name}_read.fq"
+  mf.puts "#{sample_name}/#{sample_name}.bam: #{sample_name}/#{sample_name}.trimmed.fq"
   mf.puts "\t(mkdir -p #{sample_name}; bowtie -q --phred33-quals -n 2 -e 99999999 -l 25 $(thread_arg) -a -m 200 -S #{options[:ref_name]} $< | samtools view -Sb -o $@ -)"
 end
 mf.puts
@@ -178,6 +215,18 @@ open("jobs/split_fq", "w") do |jf|
   jf.puts "#$ #{grid_resource["split"]}"
   jf.puts "make split_fq"
 end
+
+open("jobs/trim", "w") do |jf|
+  jf.puts "#!/bin/bash"
+  jf.puts "#$ -cwd -S /bin/bash -V"
+  jf.puts "#$ #{grid_resource["trim"]}"
+  jf.puts "#$ -e logs -o logs"
+  jf.puts "#$ -t 1:#{indices.size}"
+  jf.puts "samples=(dummy #{samples})"
+  jf.puts "sample=${samples[$SGE_TASK_ID]}"
+  jf.puts "make $sample/$sample.trimmed.fq"
+end
+
 
 open("jobs/map","w") do |jf|
   jf.puts "#!/bin/bash"
