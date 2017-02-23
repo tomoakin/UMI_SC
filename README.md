@@ -59,7 +59,8 @@ In case you want to trim the sequences, you may use -m and -o options to specify
               --submit -v
 
 Note "adapters.fa" is a path to a file containing the adapter sequences you are to trim. 
-Please refer to trimmomatic manual for the how to specify the options.
+Please refer to trimmomatic manual for the how to specify the options. To invoke trimmomatic,
+java should be in the PATH.
 
 ## Input data
 As input data, this program requires sequence and sample information files. 
@@ -98,6 +99,7 @@ grid.cfg specifies the resource request for the grid engine.
 an example is shown below
 
     split_fq: -pe def_slot 2
+    trim: -pe def_slot 1-7 -l mem_req=3g,s_vmem=3g
     map: -pe def_slot 1-20
     sort: -pe def_slot 1-20
     unify: -pe def_slot 2
@@ -133,11 +135,10 @@ This package requries the following programs (tested version)
 * RSEM (rsem-1.3.0)
 * R (3.1)
 
-If these programs are not installed, you can install with LPM (a local package manager written by Masahiro Kasahara 
-at the University of Tokyo; the original site is currently down).
+If these programs are not installed, you can install with LPM (https://lpm.bio/).
 If you have not installed LPM you can do so with:
 
-    wget https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/lpm
+    wget https://lpm.bio/lpm
     chmod +x lpm
     lpm initlocaldir
 
@@ -149,6 +150,7 @@ Provided that you have LPM installed, required softwares could be installed as f
     lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/samtools.lpm
     lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/bowtie.lpm
     lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/rsem.lpm
+    lpm install https://koke.asrc.kanazawa-u.ac.jp/lpm/repository/trimmomatic.lpm
 
 To compile R you may need a number of prerequisites on CentOS/RHEL 6
 

@@ -17,6 +17,7 @@ require 'mkmf'
 
 grid_conf_default = <<EOS
 split_fq: -pe def_slot 1-3
+trim: -pe def_slot 1-7 -l mem_req=3g,s_vmem=3g
 map: -pe def_slot 1-20
 sort: -pe def_slot 1-20
 unify: -pe def_slot 1-2
@@ -117,11 +118,12 @@ mf.puts '  thread_arg_sort = -@ ${NSLOTS}'
 mf.puts 'else'
 if options[:p] == nil
   mf.puts 'thread_arg = '
+  mf.puts "thread_arg_trim = -threads 1"
   mf.puts 'thread_arg_sort = '
 else
-  mf.puts "thread_arg = \"-p #{options[:p]}\""
-  mf.puts "thread_arg_trim = \"-threads #{options[:p]}\""
-  mf.puts "thread_arg_sort = \"-@ #{options[:p]}\""
+  mf.puts "thread_arg = -p #{options[:p]}"
+  mf.puts "thread_arg_trim = -threads #{options[:p]}"
+  mf.puts "thread_arg_sort = -@ #{options[:p]}"
 end
 mf.puts "endif"
 
