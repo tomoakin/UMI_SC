@@ -159,8 +159,8 @@ mf.puts "#{read_fq_targets}: #{read_fq_z} #{index_fq_z} #{sample_file}"
 mf.puts "\t#{sortbarcode1_prog} #{index_length_opt} #{sample_file} #{index_fq_dec} #{read_fq_dec}"
 mf.puts "clean: clean_fq clean_subdirs"
 mf.puts "clean_fq:"
-mf.puts "\trm -r #{read_fq_targets}"
-mf.puts "\trm -r #{index_fq_targets}"
+mf.puts "\trm -f #{read_fq_targets}"
+mf.puts "\trm -f #{index_fq_targets}"
 
 samples = indices.map{|a| a[1]}.join(" ")
 mf.puts "clean_subdirs:"
