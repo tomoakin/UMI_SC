@@ -338,9 +338,9 @@ if(options[:submit])
   end
   if qsub_response =~ /Your job (\d+)/
     job_id = $1
-    stages=["map","sort","unify","rsem"]
+    stages=["trim","map","sort","unify","rsem"]
     job_id_ad = nil
-    (0..3).each do |stage_n|
+    stages.each_index do |stage_n|
       next if grid_resource[stages[stage_n]] == grid_resource[stages[stage_n+1]]
       if job_id_ad == nil
         qsub_response = `qsub -hold_jid #{job_id} jobs/#{stages[stage_n]}`
