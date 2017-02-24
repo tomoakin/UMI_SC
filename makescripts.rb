@@ -182,7 +182,7 @@ if options[:trimmomatic] != nil
   indices.each do |ip|
     sample_name = ip[1]
     mf.puts "#{sample_name}/#{sample_name}.trimmed.fq: #{sample_name}_read.fq"
-    mf.puts "\t(mkdir -p #{sample_name}; java -Xmx2g -XX:ParallelGCThreads=1 -jar $(TRIMMOMATIC) SE $(thread_arg_trim) -phred33 $< $@ $(TRIM_OPTS))"
+    mf.puts "\t(mkdir -p #{sample_name}; java -Xmx1g -XX:ParallelGCThreads=1 -jar $(TRIMMOMATIC) SE $(thread_arg_trim) -phred33 $< $@ $(TRIM_OPTS))"
   end
 else
   indices.each do |ip|
