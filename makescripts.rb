@@ -175,7 +175,7 @@ mf.puts
 
 if options[:trimmomatic] != nil
   trim_opts =  options[:trimmomatic_options] 
-  trim_opts = "\"Trimmomatic-0.33/adapters/TruSeq3-PE.fa:2:30:7 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:16\"" if trim_opts == nil
+  trim_opts = "\"ILLUMINACLIP:Trimmomatic-0.33/adapters/TruSeq3-PE.fa:2:30:7 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:16\"" if trim_opts == nil
 
   mf.puts "TRIMMOMATIC=#{options[:trimmomatic]}"
   mf.puts "TRIM_OPTS=#{trim_opts}"
